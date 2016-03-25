@@ -1,47 +1,44 @@
 #!/usr/bin/python
 
-<<<<<<< HEAD
 import argparse
-from PIL import image
+from PIL import Image
+import fluffyStego.py
+#import ./fluffyCrypto.py 
 
 def getArgs():
 	prs = argparse.ArguementParser(prog="fluffyImage")
-	prs.add_arguement("-s", "--sourcePath", help="\"source\" image will have the covert image hidden in it or removed from it.", metavar="source_image_path", required=True)
-	prs.add_arguement("-c", "--covertPath", help="If supplied, this image will be hidden in the source image.", metavar="covert_image_path", default=None)
-	prs.add_arguement("-p", "--passphrase", help="Passphrase for encrypting the or decrypting the covert image.", required=True)
-#	prs.add_arguement("-e", "--cipherType", help="Select the cipher to be used.", choices=["SHA256", "SOMETHING_ELSE", "ETC"])
+	prs.add_arguement("-s", "--sourcePath", metavar="source_image_path", required=True, \
+				help="\"source\" image will have the covert image hidden in it or removed from it.")
+	prs.add_arguement("-c", "--covertPath", metavar="covert_image_path", default=None, \
+				help="If supplied, this image will be hidden in the source image.")
+	prs.add_arguement("-p", "--passphrase", required=True, \
+				help="Passphrase for encrypting the or decrypting the covert image.")
+#	prs.add_arguement("-e", "--cryptoType", choices=["SHA256", "SOMETHING_ELSE", "AES_ETC"]), \
+#				help="Select the cipher to be used.")
+#	prs.add_arguement("-privK", 
+#	prs.add_arguement("-pubK", 
 	return prs.parse_args()
 
 def main(args):
-	if args.covertPath != None:
-		covertIMG = Image.open(args.covertPath)
-	sourceIMG = Image.open(args.sourcePath)
-	passphrase = args.passphrase
-	#cipherType = args.cipherType
+	sourceIMG 	= Image.open(args.sourcePath)
+	passphrase 	= args.passphrase
+	#cryptoType 	= args.cryptoType
+	#PGP_PrivKey 	= args.PGP_PrivKey
+	#PGP_PubKey	= args.PGP_PubKey
 
-	print(sourceIMG.format, sourceIMG.size, sourceIMG.mode)
+	if args.covertPath is not None:
+		print("Hiding covert image...")
+		covertIMG = Image.open(args.covertPath)
+		stegoIMG = fluffyStego.hideIMG(sourceIMG, covertIMG, passphrase)
+		stegoIMG.save("r", "./not_stego.bmp")
+		return
+	else:
+		print("Finding hidden image...")
+		covertIMG = fluffyStego.findIMG(sourceIMG, passphrase)
+		covertIMG.save(r"./found.bmp")		
+		return
+
+	print("Something went wrong. :D")
 	return
 
 main(getArgs())
-=======
-from PIL import Image, ImageMath
-
-image=Image.open(r"./watermark.bmp")
-
-rgb_image=image.convert("RGB")
-
-tX, tY, bX, bY = image.getbbox()
-
-out=Image.new("RGB", (bX,bY))
-
-for x in range(0,int(bX)):
-	for y in range(0,int(bY)):
-		r, g, b = rgb_image.getpixel((x,y))
-		r = int(bin(r|1) , 2)
-		g = int(bin(g|1) , 2)
-		b = int(bin(b|1) , 2)	
-		out.putpixel((x,y),(r,g,b))
-
-out.save(r"./merged.bmp")
-
->>>>>>> 9d2c5b88b2ddc743122d1ebc318cf42f0173b52b
