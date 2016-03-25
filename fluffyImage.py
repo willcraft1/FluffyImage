@@ -30,7 +30,7 @@ def main(args):
 		print("Hiding covert image...")
 		covertIMG = Image.open(args.covertPath)
 		stegoIMG = fluffyStego.hideIMG(sourceIMG, covertIMG, passphrase)
-		stegoIMG.save("r", "./not_stego.bmp")
+		stegoIMG.save(r"./not_stego.bmp")
 		return
 	else:
 		print("Finding hidden image...")
