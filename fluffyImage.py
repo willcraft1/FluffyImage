@@ -2,21 +2,18 @@
 
 import argparse
 from PIL import Image
-import fluffyStego.py
+from fluffyStego import *
 #import ./fluffyCrypto.py 
 
 def getArgs():
-	prs = argparse.ArguementParser(prog="fluffyImage")
-	prs.add_arguement("-s", "--sourcePath", metavar="source_image_path", required=True, \
-				help="\"source\" image will have the covert image hidden in it or removed from it.")
-	prs.add_arguement("-c", "--covertPath", metavar="covert_image_path", default=None, \
-				help="If supplied, this image will be hidden in the source image.")
-	prs.add_arguement("-p", "--passphrase", required=True, \
-				help="Passphrase for encrypting the or decrypting the covert image.")
-#	prs.add_arguement("-e", "--cryptoType", choices=["SHA256", "SOMETHING_ELSE", "AES_ETC"]), \
-#				help="Select the cipher to be used.")
-#	prs.add_arguement("-privK", 
-#	prs.add_arguement("-pubK", 
+	prs = argparse.ArgumentParser(prog="fluffyImage")
+	prs.add_argument("-s", "--sourcePath", metavar="source_image_path", required=True, help="\"source\" image will have the covert image hidden in it or removed from it.")
+	prs.add_argument("-c", "--covertPath", metavar="covert_image_path", default=None, help="If supplied, this image will be hidden in the source image.")
+	prs.add_argument("-p", "--passphrase", required=True, help="Passphrase for encrypting the or decrypting the covert image.")
+	#	prs.add_argument("-e", "--cryptoType", choices=["SHA256", "SOMETHING_ELSE", "AES_ETC"]), \
+	#				help="Select the cipher to be used.")
+	#	prs.add_argument("-privK", 
+	#	prs.add_argument("-pubK", 
 	return prs.parse_args()
 
 def main(args):
@@ -29,12 +26,12 @@ def main(args):
 	if args.covertPath is not None:
 		print("Hiding covert image...")
 		covertIMG = Image.open(args.covertPath)
-		stegoIMG = fluffyStego.hideIMG(sourceIMG, covertIMG, passphrase)
+		stegoIMG = hideIMG(sourceIMG, covertIMG, passphrase)
 		stegoIMG.save(r"./not_stego.bmp")
 		return
 	else:
 		print("Finding hidden image...")
-		covertIMG = fluffyStego.findIMG(sourceIMG, passphrase)
+		covertIMG = findIMG(sourceIMG, passphrase)
 		covertIMG.save(r"./found.bmp")		
 		return
 
