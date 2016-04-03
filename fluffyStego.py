@@ -87,4 +87,8 @@ def findImg(rgbSource, passphrase):
 	
 	return foundIMG
 
+def checkSizeOK(sourceIMG, covertIMG):
+	sourcePixelTotal = sourceIMG.width() * sourceIMG.height()
+	covertPixelTotal = sourceIMG.width() * sourceIMG.height()
+	print sourcePixelTotal + covertPixelTotal
 
