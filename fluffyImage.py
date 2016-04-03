@@ -24,17 +24,19 @@ def main(args):
 	#PGP_PubKey	= args.PGP_PubKey
 
 	if args.covertPath is not None:
-		print("Hiding covert image...")
 		covertIMG = Image.open(args.covertPath)
-		stegoIMG = hideIMG(sourceIMG, covertIMG, passphrase)
-		stegoIMG.save(r"./not_stego.bmp")
-		return
+		if checkSizeOK(sourceIMG, covertIMG) is True:
+			print("Hiding covert image...")
+			stegoIMG = hideIMG(sourceIMG, covertIMG, passphrase)
+			stegoIMG.save(r"./not_stego.bmp")
+			return
+		else:
+			print("The image to hide in the source image is too large. It must be 1/8th the size.")			
 	else:
 		print("Finding hidden image...")
 		covertIMG = findImg(sourceIMG, passphrase)
 		covertIMG.save(r"./found.bmp")		
 		return
-
 	print("Something went wrong. :D")
 	return
 
