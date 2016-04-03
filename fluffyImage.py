@@ -31,7 +31,7 @@ def main(args):
 		return
 	else:
 		print("Finding hidden image...")
-		covertIMG = findIMG(sourceIMG, passphrase)
+		covertIMG = findImg(sourceIMG, passphrase)
 		covertIMG.save(r"./found.bmp")		
 		return
 

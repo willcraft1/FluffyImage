@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from PIL import Image, ImageMath
+import re
 
 def hideIMG(sourceIMG, covertIMG, passphrase):
 	rgbCovert	= covertIMG.convert("RGB")
@@ -45,5 +46,37 @@ def hideIMG(sourceIMG, covertIMG, passphrase):
 	
 	return stegoIMG 
 
-def findImg(sourceIMG, passphrase):
-	return
+def findImg(rgbSource, passphrase):
+	tX, tY, bX, bY 	= rgbSource.getbbox()
+
+	rBitArray = ""
+	gBitArray = ""
+	bBitArray = ""
+
+	foundIMG		= Image.new("RGB", (bX,bY))
+
+	for x_loc in range(0,int(bX)):
+		for y_loc in range(0,int(bY)):
+			r, g, b = rgbSource.getpixel((x_loc,y_loc))
+			rBitArray += str(bin(r)[+9:])
+			gBitArray += str(bin(g)[+9:])
+			bBitArray += str(bin(b)[+9:])	
+															
+	rCovert = re.findall('........', rBitArray)
+	gCovert = re.findall('........', gBitArray)
+	bCovert = re.findall('........', bBitArray)
+
+	pixelIndex 		= 0
+
+	for x_loc in range(0,int(bX)):
+		for y_loc in range(0,int(bY)):
+			rC = int(bin(r|int(rCovert[pixelIndex])) , 2)
+			gC = int(bin(g|int(gCovert[pixelIndex])) , 2)
+			bC = int(bin(b|int(bCovert[pixelIndex])) , 2)
+
+			foundIMG.putpixel((x_loc,y_loc),(rC,gC,bC))
+			pixelIndex+1
+	
+	return foundIMG
+
+
