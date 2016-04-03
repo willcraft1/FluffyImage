@@ -30,19 +30,21 @@ def hideIMG(sourceIMG, covertIMG, passphrase):
 
 	tX, tY, bX, bY 	= rgbSource.getbbox()
 	stegoIMG		= Image.new("RGB", (bX,bY))
+	
 	pixelIndex 		= 0
-
-
+	
 	for x_loc in range(0,int(bX)):
 		for y_loc in range(0,int(bY)):
 			r, g, b = rgbSource.getpixel((x_loc,y_loc))
-			r = int(bin(r|int(rBitArray[pixelIndex])) , 2)
-			g = int(bin(g|int(gBitArray[pixelIndex])) , 2)
-			b = int(bin(b|int(bBitArray[pixelIndex])) , 2)					
-													
-			stegoIMG.putpixel((x_loc,y_loc),(r,g,b))
+			if pixelIndex < len(rBitArray)/8:
+				rC = int(bin(r|int(rBitArray[pixelIndex])) , 2)
+				gC = int(bin(g|int(gBitArray[pixelIndex])) , 2)
+				bC = int(bin(b|int(bBitArray[pixelIndex])) , 2)
+				stegoIMG.putpixel((x_loc,y_loc),(rC,gC,bC))
+				pixelIndex += 1				
+			else:								
+				stegoIMG.putpixel((x_loc,y_loc),(r,g,b))
 
-			pixelIndex += 1
 	
 	return stegoIMG 
 
@@ -53,7 +55,8 @@ def findImg(rgbSource, passphrase):
 	gBitArray = ""
 	bBitArray = ""
 
-	foundIMG		= Image.new("RGB", (bX,bY))
+	#foundIMG		= Image.new("RGB", (bX,bY))
+	foundIMG		= Image.new("RGB", (128,128))
 
 	for x_loc in range(0,int(bX)):
 		for y_loc in range(0,int(bY)):
@@ -65,19 +68,22 @@ def findImg(rgbSource, passphrase):
 	rCovert = re.findall('........', rBitArray)
 	gCovert = re.findall('........', gBitArray)
 	bCovert = re.findall('........', bBitArray)
+	print len(bCovert)
 
 	pixelIndex = 0
 
 	for x_loc in range(0,128):
-		for y_loc in range(0,128)):		
-			rC = int(rCovert[pixelIndex])
-			gC = int(gCovert[pixelIndex])
-			bC = int(bCovert[pixelIndex])
+		for y_loc in range(0,128):
+			if pixelIndex < len(rCovert):		
+				rC = int(rCovert[pixelIndex])
+				gC = int(gCovert[pixelIndex])
+				bC = int(bCovert[pixelIndex])
 
-			foundIMG.putpixel((x_loc,y_loc),(rC,gC,bC))
-			#print rC,gC,bC
-			#print x_loc,y_loc
-			pixelIndex += 1
+				foundIMG.putpixel((x_loc,y_loc),(rC,gC,bC))
+				#print foundIMG.getpixel((x_loc,y_loc))
+				#print rC,gC,bC
+				#print x_loc,y_loc
+				pixelIndex += 1
 	
 	return foundIMG
 
