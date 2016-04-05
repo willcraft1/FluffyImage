@@ -4,8 +4,8 @@ from PIL import Image, ImageMath
 from fluffyStego import *
 
 def test():
-	sourceIMG = Image.open("./source.jpg")
-	hidingIMG = Image.open("./hide.png")
+	sourceIMG = Image.open("./source.bmp")
+	hidingIMG = Image.open("./hide.bmp")
 	passphrase = "test"
 	
 	stegoIMG = hideIMG(sourceIMG, hidingIMG, passphrase)
@@ -22,14 +22,12 @@ def test():
 		print "Stego image has stored image correctly."
 	else:
 		print "Stego image does not have storage correct."
-	
-	#do comparison stuff
 
 def checkStegoIMG():
 	testResultMSG = "OK"
 	
 	stegoIMG = Image.open("./stego.bmp")
-	hiddenIMG = Image.open("./hide.png")
+	hiddenIMG = Image.open("./hide.bmp")
 	
 	stegoPixels = list(stegoIMG.getdata())
 	

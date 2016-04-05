@@ -1,130 +1,109 @@
 #!/usr/bin/python
-
+from __future__ import division
 from PIL import Image, ImageMath
 import re
+from itertools import izip_longest
 
 def hideIMG(sourceIMG, covertIMG, passphrase):
-	rgbCovert	= covertIMG.convert("RGB")
 	rgbSource	= sourceIMG.convert("RGB")
+	rgbCovert	= covertIMG.convert("RGB")
+
+	soX, soY, smX, smY	= rgbSource.getbbox()
+	sourcePixelCount 	= int(smX*smY)
+
+	coX, coY, cmX, cmY	= rgbCovert.getbbox()
+	covertBitTotal		= int(cmX*cmY*8)
+	
+	covertRpixVals = list(rgbCovert.getdata(0))
+	covertGpixVals = list(rgbCovert.getdata(1))
+	covertBpixVals = list(rgbCovert.getdata(2))
+
+	rBitString = ""
+	gBitString = ""
+	bBitString = ""
+
+	for val in covertRpixVals:
+		rBitString += str(bin(val)[2:]).zfill(8)
+
+	for val in covertGpixVals:
+		gBitString += str(bin(val)[2:]).zfill(8)
+
+	for val in covertBpixVals:
+		bBitString += str(bin(val)[2:]).zfill(8)
+
+	stegoIMG		= rgbSource
+	covertBitIndex		= 0
+
+	for stegoX in range(0,int(smX)):
+		for stegoY in range(0,int(smY)):
+			if covertBitIndex < covertBitTotal:
+				r, g, b = stegoIMG.getpixel((stegoX,stegoY))
 				
-	rBitArray = ""
-	gBitArray = ""
-	bBitArray = ""
-	
-	covertPixels = list(rgbCovert.getdata())
+				rList = list(bin(r)[2:])
+				gList = list(bin(g)[2:])
+				bList = list(bin(b)[2:])
+				
+				rList[-1] = rBitString[covertBitIndex]
+				gList[-1] = gBitString[covertBitIndex]			
+				bList[-1] = bBitString[covertBitIndex]
 
-	for p in covertPixels:
-		pR, pG, pB = p
-		singleR = str(bin(pR)[+2:]).zfill(8)
-		for x in singleR.split():
-			rBitArray += x
+				newRbin= ''.join(rList)
+				newGbin= ''.join(gList)
+				newBbin= ''.join(bList)
 
-		singleG = str(bin(pG)[+2:]).zfill(8)
-		for x in singleG.split():
-			gBitArray += x
+				newRval = int(newRbin, 2)
+				newGval = int(newGbin, 2)
+				newBval = int(newBbin, 2)
 
-		singleB = str(bin(pB)[+2:]).zfill(8)
-		for x in singleB.split():
-			bBitArray += x
-
-	tX, tY, bX, bY 	= rgbSource.getbbox()
-	stegoIMG		= Image.new("RGB", (bX,bY))
-
-	pixelIndex 		= 0
-	
-	for x_loc in range(0,int(bX)):
-		for y_loc in range(0,int(bY)):
-			r, g, b = rgbSource.getpixel((x_loc,y_loc))
-			if pixelIndex < len(rBitArray):
-				if r%2==0: 
-					if int(rBitArray[pixelIndex])==1:
-						r+=1
-				else:
-					if int(rBitArray[pixelIndex])==0:
-						r-=1
-
-				if g%2==0: 
-					if int(gBitArray[pixelIndex])==1:
-						g+=1
-				else:
-					if int(gBitArray[pixelIndex])==0:
-						g-=1
-
-				if b%2==0: 
-					if int(bBitArray[pixelIndex])==1:
-						b+=1
-				else:
-					if int(bBitArray[pixelIndex])==0:
-						b-=1
-
-				stegoIMG.putpixel((x_loc,y_loc),(r,g,b))
-				pixelIndex += 1				
-			else:								
-				stegoIMG.putpixel((x_loc,y_loc),(r,g,b))
-	
+				stegoIMG.putpixel((stegoX,stegoY),(newRval,newGval,newBval))
+				#print bin(r), bin(g), bin(b)
+				covertBitIndex += 1
 	return stegoIMG 
 
-def findIMG(rgbSource, passphrase):
-	tX, tY, bX, bY 	= rgbSource.getbbox()
+def findIMG(rgbStego, passphrase):
+	covertMaxX = 512 #TODO:
+	covertMaxY = 512 #pull this from image
+	covertTotalPixels = covertMaxX*covertMaxY
+	covertTotalBits = covertTotalPixels*8
 
-	rBitArray = ""
-	gBitArray = ""
-	bBitArray = ""
+	soX, soY, smX, smY	= rgbStego.getbbox()
 
-	covertPixels = list(rgbSource.getdata())
-	
-	index = 0
-	for p in covertPixels:
-		pR, pG, pB = p
-		rBitArray += bin(pR)[-1:]
-		gBitArray += bin(pG)[-1:]
-		bBitArray += bin(pB)[-1:]
+	stegoRpixVals = list(rgbStego.getdata(0))
+	stegoGpixVals = list(rgbStego.getdata(1))
+	stegoBpixVals = list(rgbStego.getdata(2))
 
-		if index < 128:
-			print bin(pR), bin(pR)[-1:]
-			index +=1
+	rBitString = ""
+	gBitString = ""
+	bBitString = ""
 
-	print rBitArray[:128]
-	#print gBitArray[:128]
-	#print bBitArray[:128]
+	for covertBit in range (0, covertTotalBits):
+		rBitString += str(bin(stegoRpixVals[covertBit])[-1:])
 
-	#for x_loc in range(0,int(bX)):
-		#for y_loc in range(0,int(bY)):
-			#r, g, b = rgbSource.getpixel((x_loc,y_loc))
-			#print str(bin(r)[-1:])
-			#rBitArray += str(bin(r)[-1:])
-			#gBitArray += str(bin(g)[-1:])
-			#bBitArray += str(bin(b)[-1:])
-													
-	rCovert = re.findall('........', rBitArray)
-	gCovert = re.findall('........', gBitArray)
-	bCovert = re.findall('........', bBitArray)
-	
-	#print rCovert, gCovert, bCovert	
-	#print rCovert[1], gCovert[1], bCovert[1]
+	for covertBit in range (0, covertTotalBits):	
+		gBitString += str(bin(stegoGpixVals[covertBit])[-1:])
 
-	#foundIMG		= Image.new("RGB", (bX,bY))
-	foundIMG		= Image.new("RGB", (128,128))
+	for covertBit in range (0, covertTotalBits):
+		bBitString += str(bin(stegoBpixVals[covertBit])[-1:])
 
-	pixelIndex = 0
+	rPixelList = pixelizer(rBitString, 8)
+	gPixelList = pixelizer(gBitString, 8)
+	bPixelList = pixelizer(bBitString, 8)
 
-	for x_loc in range(0,127):
-		for y_loc in range(0,127):
-		#if pixelIndex < len(rCovert):		
-			rC = int(rCovert[pixelIndex], 2)
-			gC = int(gCovert[pixelIndex], 2)
-			bC = int(bCovert[pixelIndex], 2)
+	foundIMG = Image.new("RGB", (covertMaxX,covertMaxY))
 
-			#print rC, gC, bC
+	pixelsSaved = 0
 
-			foundIMG.putpixel((x_loc,y_loc),(rC,gC,bC))
-			#print foundIMG.getpixel((x_loc,y_loc))
-			#print rC
-			#print x_loc,y_loc
-			pixelIndex += 1
-	
+	for found_x in range(0,covertMaxX):
+		for found_y in range(0,covertMaxY):
+			r = int(rPixelList.next(), 2)
+			g = int(gPixelList.next(), 2)
+			b = int(bPixelList.next(), 2)
+			foundIMG.putpixel( (found_x,found_y) , (r,g,b) )
+			pixelsSaved += 1
 	return foundIMG
 
+def pixelizer(seq, size):
+    return (seq[pos:pos + size] for pos in xrange(0, len(seq), size))
 
 def checkSizeOK(sourceIMG, covertIMG):
 	sourceW = sourceIMG.width
@@ -134,7 +113,7 @@ def checkSizeOK(sourceIMG, covertIMG):
 	sourcePixelTotal = int(sourceW) * int(sourceH)
 	covertPixelTotal = int(covertW) * int(covertH)
 
-	if sourcePixelTotal/8 >= covertPixelTotal+10:
+	if sourcePixelTotal >= covertPixelTotal*8:
 		return True 
 	else:
 		return False
