@@ -28,6 +28,10 @@ def hideIMG(sourceIMG, covertIMG, passphrase):
 		for x in singleB.split():
 			bBitArray += x
 
+	print rBitArray[:128]
+	print gBitArray[:128]
+	print bBitArray[:128]
+
 	tX, tY, bX, bY 	= rgbSource.getbbox()
 	stegoIMG		= Image.new("RGB", (bX,bY))
 
@@ -36,7 +40,7 @@ def hideIMG(sourceIMG, covertIMG, passphrase):
 	for x_loc in range(0,int(bX)):
 		for y_loc in range(0,int(bY)):
 			r, g, b = rgbSource.getpixel((x_loc,y_loc))
-			if pixelIndex < len(rBitArray)/8:
+			if pixelIndex < len(rBitArray):
 				if r%2==0: 
 					if int(rBitArray[pixelIndex])==1:
 						r+=1
@@ -58,14 +62,10 @@ def hideIMG(sourceIMG, covertIMG, passphrase):
 					if int(bBitArray[pixelIndex])==0:
 						b-=1
 
-				#rC = int(bin(r|int(rBitArray[pixelIndex])) , 2)
-				#gC = int(bin(g|int(gBitArray[pixelIndex])) , 2)
-				#bC = int(bin(b|int(bBitArray[pixelIndex])) , 2)
 				stegoIMG.putpixel((x_loc,y_loc),(r,g,b))
 				pixelIndex += 1				
 			else:								
 				stegoIMG.putpixel((x_loc,y_loc),(r,g,b))
-
 	
 	return stegoIMG 
 
@@ -80,18 +80,26 @@ def findImg(rgbSource, passphrase):
 
 	for p in covertPixels:
 		pR, pG, pB = p	
-
-		singleR = str(bin(pR)[+2:])
+		singleR = str(bin(pR)[+2:]).zfill(8)
 		for x in singleR.split():
-			rBitArray += x[-1:]
+			rBitArray += x
 
-		singleG = str(bin(pG)[+2:])
+		singleG = str(bin(pG)[+2:]).zfill(8)
 		for x in singleG.split():
-			gBitArray += x[-1:]
+			gBitArray += x
 
-		singleB = str(bin(pB)[+2:])
+		singleB = str(bin(pB)[+2:]).zfill(8)
 		for x in singleB.split():
-			bBitArray += x[-1:]
+			bBitArray += x
+
+	for rC in rBitArray:
+		rCapture = rC[-1:]
+	
+	rCapture = ""
+	print rCapture[:128]
+	#print rBitArray[:128]
+	#print gBitArray[:128]
+	#print bBitArray[:128]
 
 	#for x_loc in range(0,int(bX)):
 		#for y_loc in range(0,int(bY)):
@@ -102,9 +110,10 @@ def findImg(rgbSource, passphrase):
 			#bBitArray += str(bin(b)[-1:])
 													
 	rCovert = re.findall('........', rBitArray)
+	print rCovert[:128]
 	gCovert = re.findall('........', gBitArray)
 	bCovert = re.findall('........', bBitArray)
-	print rBitArray[:128] 	
+	
 	#print rCovert, gCovert, bCovert	
 	#print rCovert[1], gCovert[1], bCovert[1]
 
