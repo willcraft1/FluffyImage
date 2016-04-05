@@ -69,7 +69,7 @@ def hideIMG(sourceIMG, covertIMG, passphrase):
 	
 	return stegoIMG 
 
-def findImg(rgbSource, passphrase):
+def findIMG(rgbSource, passphrase):
 	tX, tY, bX, bY 	= rgbSource.getbbox()
 
 	rBitArray = ""
