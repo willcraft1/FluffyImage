@@ -27,7 +27,7 @@ def main(args):
 		covertIMG = Image.open(args.covertPath)
 		if checkSizeOK(sourceIMG, covertIMG) is True:
 			print("Hiding covert image...")
-			stegoIMG = hideIMG(sourceIMG, covertIMG, passphrase)
+			stegoIMG = hideIMG(sourceIMG, covertIMG, args.covertPath, passphrase)
 			stegoIMG.save(r"./not_stego.bmp")
 			return
 		else:
@@ -35,7 +35,8 @@ def main(args):
 	else:
 		print("Finding hidden image...")
 		covertIMG = findImg(sourceIMG, passphrase)
-		covertIMG.save(r"./found.bmp")		
+		img, name = covertIMG
+		img.save(name)		
 		return
 	print("Something went wrong. :D")
 	return
