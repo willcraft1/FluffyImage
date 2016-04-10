@@ -24,42 +24,6 @@ def checkSizeOK(sourceIMG, covertIMG):
 	else:
 		return False
 
-def crypto(msg):
-	data = ""
-	counter = 0
-
-	v1 = "00"
-	v2 = "01"
-	v3 = "10"
-	v4 = "11"
-
-	#encrypt logic
-	'''
-	00 becomes 10
-	01 becomes 11
-	10 becomes 01
-	11 becomes 00
-	'''
-
-	for c in msg:
-		num = int(c)
-		if counter < 5:
-			if num == 0:
-				data += str(1)
-				counter += 1
-			else:
-				data += str(0)
-				counter += 1
-
-		elif counter == 6:
-			#reset counter
-			data += str(c)
-			counter = 0
-		else:
-			data += str(c)
-			counter += 1
-	return data
-
 #test doc string translation (TD_2-1)
 '''
 def string_bin(string):

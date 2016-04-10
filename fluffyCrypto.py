@@ -2,6 +2,30 @@
 
 import math, sys, getopt
 
+
+def crypto(msg):
+	data = ""
+	counter = 0
+
+	for c in msg:
+		num = int(c)
+		if counter < 5:
+			if num == 0:
+				data += str(1)
+				counter += 1
+			else:
+				data += str(0)
+				counter += 1
+
+		elif counter == 6:
+			#reset counter
+			data += str(c)
+			counter = 0
+		else:
+			data += str(c)
+			counter += 1
+	return data
+
 def encryptMessage (key, message):
 
     # Each string in ciphertext represents a column in the grid.
