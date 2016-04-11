@@ -41,46 +41,26 @@ def bin_string(binary):
 def hideIMG(sourceIMG, covertIMG, covertName, sourceName, key, covertmsg):
 	rgbCovert	= covertIMG.convert("RGB")
 	rgbSource	= sourceIMG.convert("RGB")
-				
 	rBitArray = ""
 	
 	#collect covert image size
 	h, w = covertIMG.size
-	#TD_1
-	'''
-	print("name:",covertName)
-	print("size:",h, "x", w)
-	'''
-	
+
+	#add size of hidden image to header
 	rBitArray += str(bin(h)[+2:]).zfill(8)
 	rBitArray += marker
 	rBitArray += str(bin(w)[+2:]).zfill(8)
 	rBitArray += marker
 
-	#convert name to binary and add to header
-	#TD_2-0 invalid in python 3.4
-	'''
-	name = map(bin, bytearray(covertName))
-	for byte in name:
-		rBitArray += str(byte[+2:]).zfill(8)
-	rBitArray += marker
-	'''
-	
-	#TD_2-1 certain characters fail translation
-	'''
-	print(covertName)
-	name = string_bin(covertName)
-	print(name)
-	binaryName = bin_string(name)
-	print(binaryName)
-	'''
-
-	name = bytearray(covertName[0:(len(covertName))], 'ascii')
-	splitName = list(name)
+	#add file name to header
+	name = covertName.split(".")
+	name2 = bytearray(name[0][0:(len(name[0]))], 'ascii')
+	splitName = list(name2)
 	for c in splitName:
 		rBitArray += str(bin(c)[+2:]).zfill(8)
 	rBitArray += marker
 	
+	#add secret messge to header
 	msg = bytearray(covertmsg[0:(len(covertmsg))], 'ascii')
 	splitmsg = list(msg)
 	for m in splitmsg:
@@ -92,9 +72,6 @@ def hideIMG(sourceIMG, covertIMG, covertName, sourceName, key, covertmsg):
 	while header < 2048:
 		rBitArray += "0"
 		header += 1
-	#TD_3 compiled header
-	print("Full header:",rBitArray[:2048])
-
 
 	#add header to all channels to make them the same length
 	gBitArray = rBitArray
@@ -102,29 +79,26 @@ def hideIMG(sourceIMG, covertIMG, covertName, sourceName, key, covertmsg):
 
 	covertPixels = list(rgbCovert.getdata())
 
-	#TD_8-1 red.bmp (250,1,2)					
-	'''
-	print(covertPixels)
-	'''
-
 	for p in covertPixels:
 		pR, pG, pB = p
 		rBitArray += str(bin(pR)[+2:]).zfill(8)
 		gBitArray += str(bin(pG)[+2:]).zfill(8)
 		bBitArray += str(bin(pB)[+2:]).zfill(8)
 
+	'''
 	if key is not None:
 		#encryption
 		rSplit = list(rBitArray)
 		gSplit = list(gBitArray)
 		bSplit = list(bBitArray)
-		rEncode = enCrypto(rSplit, key)
-		gEncode = enCrypto(gSplit, key)
-		bEncode = enCrypto(bSplit, key)
+		rEncode = enCrypto(rBitArray, key)
+		gEncode = enCrypto(gBitArray, key)
+		bEncode = enCrypto(bBitArray, key)
 	else: 
-		rEncode = rBitArray
-		gEncode	= gBitArray
-		bEncode = bBitArray
+	'''
+	rEncode = rBitArray
+	gEncode	= gBitArray
+	bEncode = bBitArray
 
 	#TD_4 proof of changes
 	'''
@@ -194,7 +168,7 @@ def hideIMG(sourceIMG, covertIMG, covertName, sourceName, key, covertmsg):
 
 	#remove the extension
 	common = sourceName[:-4]
-	name = "".join((common, "_STEGO.bmp"))
+	name = "".join(("stegoInside_", common, ".bmp"))
 	print("Stego image name: ",name)
 
 	return stegoIMG, name
@@ -220,35 +194,22 @@ def findImg(rgbSource, key):
 			gBitArray += (bin(g)[2:].zfill(8)[-1:])
 			bBitArray += (bin(b)[2:].zfill(8)[-1:])
 	
-	
+	'''
 	if key is not None:
 		#decryption process
 		rSplit = list(rBitArray)
 		gSplit = list(gBitArray)
 		bSplit = list(bBitArray)
-		rDecode = str(deCrypto(rSplit, key))
-		gDecode = str(deCrypto(gSplit, key))
-		bDecode = str(deCrypto(bSplit, key))
+		rDecode = deCrypto(rBitArray, key)
+		gDecode = deCrypto(gBitArray, key)
+		bDecode = deCrypto(bBitArray, key)
 	else:
-		rDecode = rBitArray
-		gDecode = gBitArray
-		bDecode = bBitArray
 	'''
-	
-	rSplit = list(rBitArray)
-	gSplit = list(gBitArray)
-	bSplit = list(bBitArray)
-	rDecode = crypto (rSplit)
-	gDecode = crypto (gSplit)
-	bDecode = crypto (bSplit)
-	'''
-	#test doc, using transpostion
-	'''
-	rDecode = decryptMessage (24, rBitArray)
-	gDecode = decryptMessage (24, gBitArray)
-	bDecode = decryptMessage (24, bBitArray)
+	rDecode = rBitArray
+	gDecode = gBitArray
+	bDecode = bBitArray
 
-
+	'''
 	#TD_7
 	print("encrypted sample:")
 	print(rBitArray[:2048])
@@ -266,18 +227,18 @@ def findImg(rgbSource, key):
 	name = ""	
 	for char in nameBin:
 		name += chr(int(char, 2))	
-	print("original name:",name)
+	print("Original image name: ",name)
 	
 	msgBin = re.findall('........', header[3])
 	msgEX = ""	
 	for m in msgBin:
 		msgEX += chr(int(m, 2))
 
-	#covert string into bytes, adjust for 2048 bit header in red channel
+	#covert string into bytes, adjust for 2048 bit header 
 	rCovert = re.findall('........', rDecode[2048:])
 	gCovert = re.findall('........', gDecode[2048:])
 	bCovert = re.findall('........', bDecode[2048:])
-	
+
 	#proof of cryptography working (hard code values for PoC)
 	#PoC_1
 	'''
@@ -291,10 +252,10 @@ def findImg(rgbSource, key):
 	print("encrypted:",rBitArray[:2048])
 	'''
 
-	#build new base image
+	#create blank image same size as the hidden image
 	foundIMG		= Image.new("RGB", (covertX,covertY))
 	
-	#grab each colour value from the Covert Arrays and assign to new image
+	#get each colour value from the Covert Arrays and assign to new image
 	#TD_8 x_loc and y_loc are reversed as you assemble in the oposite direction as decompile
 	pixelIndex = 0
 	for y_loc in range(0,covertY):
@@ -306,6 +267,7 @@ def findImg(rgbSource, key):
 
 				foundIMG.putpixel((x_loc,y_loc),(rC,gC,bC))
 				pixelIndex += 1
+				
 	nameEX = "".join(("extracted_", name))	
 	return foundIMG, nameEX, msgEX
 

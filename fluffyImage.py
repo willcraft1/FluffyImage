@@ -20,7 +20,12 @@ def main(args):
 		covertIMG = Image.open(args.covertPath)
 		if checkSizeOK(sourceIMG, covertIMG) is True:
 			print("Hiding covert image...")
-			stegoIMG = hideIMG(sourceIMG, covertIMG, args.covertPath, args.sourcePath, args.key, args.msg)
+			if args.key is not None:
+				print("With encryption...")
+				encryptedCovertIMG = encryptIMG(covertIMG, args.key)
+				stegoIMG = hideIMG(sourceIMG, encryptedCovertIMG, args.covertPath, args.sourcePath, args.key, args.msg)
+			else:
+				stegoIMG = hideIMG(sourceIMG, covertIMG, args.covertPath, args.sourcePath, args.key, args.msg)
 			img, name = stegoIMG
 			img.save(name)
 			print("Saved stego'd image as: "+name)
@@ -30,9 +35,17 @@ def main(args):
 			return		
 	else:
 		print("Finding hidden image...")
-		covertIMG = findImg(sourceIMG, args.key)
-		img, name, msg = covertIMG
-		img.save(name)
+		if args.key is not None:
+			print("With encryption...")
+			covertIMG = findImg(sourceIMG, args.key)
+			img, name, msg = covertIMG
+			img.save(name+".bmp")
+			decryptedIMG = decryptIMG(img, args.key)
+			decryptedIMG.save("decrypted"+name+".bmp")
+		else:
+			covertIMG = findImg(sourceIMG, args.key)
+			img, name, msg = covertIMG
+			img.save(name)
 		print("Saved extracted image as: "+name)
 		print("The secret message is: "+msg)	
 		return
