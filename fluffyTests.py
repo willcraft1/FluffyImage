@@ -1,26 +1,26 @@
-#!/usr/bin/python
+#!/usr/bin/python3.4
 
 from PIL import Image, ImageMath
 from fluffyStego import *
-from fluffyImage import *
 
 def test():
-	sourceIMG = Image.open("./source.jpg")
-	hideIMG = Image.open("./hide.jpg")
-	passphrase = "test"
+	sourceIMG = Image.open("./large.jpg")
+	toHide = Image.open("./hide.bmp")
+	fileName = "filename"
+	key	= "SECRETKEYSARESECRET"
+	msg	= "Hello World"
 	
-	stegoIMG = hideImg(sourceIMG, hideIMG, passphrase)
+	stegoIMG, name = hideIMG(sourceIMG, toHide, fileName, fileName, key, msg)
 	
-	stegoIMG.save(r"./stego.bmp")
+	stegoIMG.save(r"./TESTstego.bmp")
 	
-	stegoIMG = Image.open("./stego.bmp")
+	stegoIMG = Image.open("./TESTstego.bmp")
 	
-	foundIMG = findImg(stegoIMG, passphrase)
+	foundIMG, nameX, msgX = findImg(stegoIMG, key)
 	
-	foundIMG.save(r"./found.bmp)
+	foundIMG.save(r"./TESTfound.bmp")
 	
 	#do comparison stuff
 	
 
-main():
-	test()
+test()

@@ -1,6 +1,7 @@
 #!/usr/bin/python3.4
 
 import math, sys, getopt
+from Crypto import *
 
 
 def crypto(msg):
@@ -25,6 +26,14 @@ def crypto(msg):
 			data += str(c)
 			counter += 1
 	return data
+
+def enCrypto (plaintxt, key):
+	ciphertxt = plaintxt
+	return ciphertxt
+
+def deCrypto (ciphertxt, key):
+	plaintxt = ciphertxt
+	return plaintxt
 
 def encryptMessage (key, message):
 
