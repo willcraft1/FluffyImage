@@ -45,7 +45,7 @@ def main(args):
 		else:
 			covertIMG = findImg(sourceIMG, args.key)
 			img, name, msg = covertIMG
-			img.save(name)
+			img.save(name+".bmp")
 		print("Saved extracted image as: "+name)
 		print("The secret message is: "+msg)	
 		return
